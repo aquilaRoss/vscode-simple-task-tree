@@ -12,7 +12,7 @@ Most task explorer extensions try to detect every runnable thing in your workspa
 - Refreshes automatically when `tasks.json` changes
 - Move the view anywhere you like via drag and drop (native VS Code view behavior)
 
-<!-- ![Screenshot of Simple Task Tree in the sidebar](images/screenshot-tree.png) -->
+![Screenshot of Simple Task Tree in the sidebar](images/screenshot-tree.png)
 
 ## Usage
 
