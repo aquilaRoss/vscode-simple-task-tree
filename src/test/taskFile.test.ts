@@ -68,4 +68,33 @@ suite('readDeclaredTasks', () => {
 		const tasks = await readDeclaredTasks(folder);
 		assert.deepStrictEqual(tasks, []);
 	});
+
+	test('tolerates JSONC comments and trailing commas', async () => {
+		const raw = `{
+			// a line comment
+			"version": "2.0.0",
+			"tasks": [
+				{
+					"label": "Build", // trailing comment
+					"type": "shell",
+					"command": "echo build", /* block comment */
+				},
+			],
+		}`;
+		await fs.writeFile(path.join(workspaceDir, '.vscode', 'tasks.json'), raw);
+
+		const tasks = await readDeclaredTasks(folder);
+
+		assert.deepStrictEqual(
+			tasks.map((t) => t.label),
+			['Build']
+		);
+	});
+
+	test('returns an empty list when tasks.json has invalid JSON', async () => {
+		await fs.writeFile(path.join(workspaceDir, '.vscode', 'tasks.json'), '{ not json ');
+
+		const tasks = await readDeclaredTasks(folder);
+		assert.deepStrictEqual(tasks, []);
+	});
 });
