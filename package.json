@@ -2,7 +2,7 @@
   "name": "simple-task-tree",
   "displayName": "Simple Task Tree",
   "description": "A lightweight tree view of the tasks defined in your .vscode/tasks.json - nothing else.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "aquilaRoss",
   "license": "MIT",
   "repository": {
