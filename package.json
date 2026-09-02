@@ -2,7 +2,7 @@
   "name": "simple-task-tree",
   "displayName": "Simple Task Tree",
   "description": "A lightweight tree view of the tasks defined in your .vscode/tasks.json - nothing else.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "aquilaRoss",
   "license": "MIT",
   "repository": {
@@ -79,6 +79,9 @@
     "pretest": "npm run compile",
     "test": "vscode-test",
     "vscode:prepublish": "npm run package"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.2.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

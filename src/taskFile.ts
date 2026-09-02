@@ -1,17 +1,9 @@
 import * as vscode from 'vscode';
+import { parseTree, findNodeAtLocation, Node } from 'jsonc-parser';
 
 export interface DeclaredTask {
 	label: string;
 	folder: vscode.WorkspaceFolder;
-}
-
-interface TaskEntry {
-	label?: unknown;
-	taskName?: unknown;
-}
-
-interface TasksJson {
-	tasks?: TaskEntry[];
 }
 
 /**
@@ -28,20 +20,18 @@ export async function readDeclaredTasks(folder: vscode.WorkspaceFolder): Promise
 		return [];
 	}
 
-	let parsed: TasksJson;
-	try {
-		parsed = JSON.parse(stripJsonComments(text));
-	} catch {
+	const root = parseTree(text);
+	if (!root) {
 		return [];
 	}
-
-	if (!Array.isArray(parsed.tasks)) {
+	const tasksNode = findNodeAtLocation(root, ['tasks']);
+	if (!tasksNode || tasksNode.type !== 'array' || !tasksNode.children) {
 		return [];
 	}
 
 	const result: DeclaredTask[] = [];
-	for (const entry of parsed.tasks) {
-		const label = readLabel(entry);
+	for (const taskNode of tasksNode.children) {
+		const label = readLabel(taskNode);
 		if (label) {
 			result.push({ label, folder });
 		}
@@ -49,71 +39,10 @@ export async function readDeclaredTasks(folder: vscode.WorkspaceFolder): Promise
 	return result;
 }
 
-function readLabel(entry: TaskEntry): string | undefined {
-	if (typeof entry.label === 'string') {
-		return entry.label;
-	}
-	if (typeof entry.taskName === 'string') {
-		return entry.taskName;
+function readLabel(taskNode: Node): string | undefined {
+	const labelNode = findNodeAtLocation(taskNode, ['label']) ?? findNodeAtLocation(taskNode, ['taskName']);
+	if (labelNode && typeof labelNode.value === 'string') {
+		return labelNode.value;
 	}
 	return undefined;
-}
-
-/**
- * tasks.json allows // and /* comments and trailing commas (JSONC). Strips
- * comments outside of strings so the result can go through JSON.parse; a
- * trailing-comma-tolerant regex pass then removes those too.
- */
-function stripJsonComments(text: string): string {
-	let result = '';
-	let inString = false;
-	let inLineComment = false;
-	let inBlockComment = false;
-
-	for (let i = 0; i < text.length; i++) {
-		const char = text[i];
-		const next = text[i + 1];
-
-		if (inLineComment) {
-			if (char === '\n') {
-				inLineComment = false;
-				result += char;
-			}
-			continue;
-		}
-
-		if (inBlockComment) {
-			if (char === '*' && next === '/') {
-				inBlockComment = false;
-				i++;
-			}
-			continue;
-		}
-
-		if (inString) {
-			result += char;
-			if (char === '\\') {
-				result += next;
-				i++;
-			} else if (char === '"') {
-				inString = false;
-			}
-			continue;
-		}
-
-		if (char === '"') {
-			inString = true;
-			result += char;
-		} else if (char === '/' && next === '/') {
-			inLineComment = true;
-			i++;
-		} else if (char === '/' && next === '*') {
-			inBlockComment = true;
-			i++;
-		} else {
-			result += char;
-		}
-	}
-
-	return result.replace(/,(\s*[}\]])/g, '$1');
 }
