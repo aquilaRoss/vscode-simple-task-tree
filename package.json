@@ -1,0 +1,98 @@
+{
+  "name": "simple-task-tree",
+  "displayName": "Simple Task Tree",
+  "description": "A lightweight tree view of the tasks defined in your .vscode/tasks.json - nothing else.",
+  "version": "0.0.4",
+  "publisher": "aquilaRoss",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aquilaRoss/vscode-simple-task-tree"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "simpleTaskTree.view",
+          "name": "Tasks"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "simpleTaskTree.refresh",
+        "title": "Simple Task Tree: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "simpleTaskTree.runTask",
+        "title": "Simple Task Tree: Run Task",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "simpleTaskTree.refresh",
+          "when": "view == simpleTaskTree.view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "simpleTaskTree.runTask",
+          "when": "view == simpleTaskTree.view && viewItem == task",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Simple Task Tree",
+      "properties": {
+        "simpleTaskTree.sortOrder": {
+          "type": "string",
+          "enum": [
+            "tasksJson",
+            "alphabetical"
+          ],
+          "default": "tasksJson",
+          "description": "Order in which tasks are listed in the tree."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -noEmit -p ./ && node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "tsc -noEmit -p ./ && node esbuild.js --production",
+    "lint": "eslint src",
+    "pretest": "npm run compile",
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run package"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^2.24.0",
+    "esbuild": "^0.20.1",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  }
+}
